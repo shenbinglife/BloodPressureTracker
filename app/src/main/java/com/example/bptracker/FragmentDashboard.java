@@ -1,6 +1,5 @@
 package com.example.bptracker;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,6 +51,7 @@ public class FragmentDashboard extends Fragment {
         btnQuarter.setOnClickListener(v -> selectRange(RANGE_QUARTER, btnQuarter));
         btnAll.setOnClickListener(v -> selectRange(RANGE_ALL, btnAll));
 
+        // Default: select "最近一周"
         selectRange(RANGE_WEEK, btnWeek);
         return view;
     }
