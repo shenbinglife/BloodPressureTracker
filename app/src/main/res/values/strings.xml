@@ -5,6 +5,9 @@
     <string name="tab_dashboard">看板</string>
     <string name="tab_settings">设置</string>
     <string name="add_record">添加记录</string>
+    <string name="voice_input">语音输入</string>
+    <string name="voice_listening">正在聆听...</string>
+    <string name="voice_parse_failed">语音识别失败，未识别到有效血压值</string>
     <string name="edit_record">编辑记录</string>
     <string name="systolic">收缩压 (高压)</string>
     <string name="diastolic">舒张压 (低压)</string>

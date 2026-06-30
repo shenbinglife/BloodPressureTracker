@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.nav_dashboard:
                     showFragment(fragmentDashboard);
+                    fragmentDashboard.refreshDashboard();
                     return true;
                 case R.id.nav_settings:
                     showFragment(fragmentSettings);

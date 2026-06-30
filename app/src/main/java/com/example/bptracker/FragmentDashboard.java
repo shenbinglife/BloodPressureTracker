@@ -101,4 +101,15 @@ public class FragmentDashboard extends Fragment {
         chartTrend.setData(records);
         chartDistribution.setData(distribution);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateDashboard();
+    }
+
+    /** Called by MainActivity when switching to this tab */
+    public void refreshDashboard() {
+        updateDashboard();
+    }
 }
