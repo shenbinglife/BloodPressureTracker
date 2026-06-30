@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#FF1976D2</color>
+    <color name="primary_dark">#FF1565C0</color>
+    <color name="accent">#FFE53935</color>
+    <color name="systolic_color">#FFE53935</color>
+    <color name="diastolic_color">#FF1E88E5</color>
+    <color name="heart_rate_color">#FF43A047</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#FFF5F5F5</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="text_primary">#DE000000</color>
+    <color name="text_secondary">#99000000</color>
+
+    <!-- BP Level Colors -->
+    <color name="bp_normal">#FF4CAF50</color>
+    <color name="bp_elevated">#FFFFC107</color>
+    <color name="bp_high_stage1">#FFFF9800</color>
+    <color name="bp_high_stage2">#FFF44336</color>
+    <color name="bp_crisis">#FFB71C1C</color>
+
+    <!-- Chart Colors -->
+    <color name="chart_systolic">#FFE53935</color>
+    <color name="chart_diastolic">#FF1E88E5</color>
+    <color name="chart_heart_rate">#FF43A047</color>
+    <color name="chart_grid">#FFE0E0E0</color>
+    <color name="chart_bg">#FFFFFFFF</color>
+</resources>

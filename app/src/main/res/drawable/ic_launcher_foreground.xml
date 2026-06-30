@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Heart symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,32C54,32 44,20 34,20C24,20 18,28 18,36C18,52 54,78 54,78C54,78 90,52 90,36C90,28 84,20 74,20C64,20 54,32 54,32Z" />
+    <!-- BP text indicators -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M38,48L42,48L42,60L38,60ZM46,44L50,44L50,60L46,60ZM54,46L58,46L58,60L54,60ZM62,38L66,38L66,60L62,60ZM70,42L74,42L74,60L70,60Z" />
+</vector>

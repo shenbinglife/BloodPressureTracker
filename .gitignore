@@ -1,0 +1,25 @@
+# Android
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+*.log
+
+# Gradle
+gradle.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keystore (keep secret!)
+release.keystore

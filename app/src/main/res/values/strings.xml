@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">血压记录</string>
+    <string name="tab_records">记录</string>
+    <string name="tab_dashboard">看板</string>
+    <string name="tab_settings">设置</string>
+    <string name="add_record">添加记录</string>
+    <string name="edit_record">编辑记录</string>
+    <string name="systolic">收缩压 (高压)</string>
+    <string name="diastolic">舒张压 (低压)</string>
+    <string name="heart_rate">心率</string>
+    <string name="date">日期</string>
+    <string name="time">时间</string>
+    <string name="note">备注</string>
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="confirm_delete">确认删除</string>
+    <string name="delete_message">确定要删除这条记录吗？</string>
+    <string name="yes">确定</string>
+    <string name="no">取消</string>
+    <string name="no_records">暂无记录\n点击右下角按钮添加</string>
+    <string name="unit_mmhg">mmHg</string>
+    <string name="unit_bpm">bpm</string>
+    <string name="systolic_hint">例如: 120</string>
+    <string name="diastolic_hint">例如: 80</string>
+    <string name="heart_rate_hint">例如: 72</string>
+    <string name="note_hint">可选备注信息</string>
+    <string name="select_date">选择日期</string>
+    <string name="select_time">选择时间</string>
+    <string name="input_error">请输入有效的血压值</string>
+    <string name="systolic_range">收缩压需在 60~300 之间</string>
+    <string name="diastolic_range">舒张压需在 30~200 之间</string>
+    <string name="heart_rate_range">心率需在 30~250 之间</string>
+
+    <!-- BP Level -->
+    <string name="bp_normal">正常</string>
+    <string name="bp_elevated">偏高</string>
+    <string name="bp_high_stage1">高血压 1级</string>
+    <string name="bp_high_stage2">高血压 2级</string>
+    <string name="bp_crisis">危险</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">血压看板</string>
+    <string name="avg_systolic">平均收缩压</string>
+    <string name="avg_diastolic">平均舒张压</string>
+    <string name="avg_heart_rate">平均心率</string>
+    <string name="total_records">总记录数</string>
+    <string name="bp_trend">血压趋势</string>
+    <string name="bp_distribution">血压分布</string>
+    <string name="time_range_week">最近一周</string>
+    <string name="time_range_month">最近一月</string>
+    <string name="time_range_quarter">最近三月</string>
+    <string name="time_range_all">全部</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="data_management">数据管理</string>
+    <string name="export_csv">导出 CSV</string>
+    <string name="import_csv">导入 CSV</string>
+    <string name="notification_settings">通知设置</string>
+    <string name="enable_notification">启用定时提醒</string>
+    <string name="notification_time">提醒时间</string>
+    <string name="notification_summary">每天定时提醒测量血压</string>
+    <string name="export_success">数据已导出到文件</string>
+    <string name="export_failed">导出失败</string>
+    <string name="import_success">数据已导入</string>
+    <string name="import_failed">导入失败，请检查文件格式</string>
+    <string name="import_no_file">未找到导入文件</string>
+    <string name="about">关于</string>
+    <string name="app_version">版本 2.0</string>
+    <string name="notification_channel_name">血压提醒</string>
+    <string name="notification_channel_desc">定时提醒测量血压</string>
+    <string name="notification_title">血压测量提醒</string>
+    <string name="notification_text">该测量今天的血压了，别忘了记录哦！</string>
+    <string name="no_data">无数据</string>
+
+    <string name="storage_permission_rationale">需要存储权限来导入导出数据</string>
+</resources>
