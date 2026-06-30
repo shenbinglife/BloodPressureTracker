@@ -53,6 +53,17 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnVoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="12dp"
+                        android:text="语音输入血压"
+                        android:textSize="14sp"
+                        android:icon="@android:drawable/ic_btn_speak_now"
+                        app:iconTint="@color/white"
+                        app:cornerRadius="12dp" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilSystolic"
                         android:layout_width="match_parent"
