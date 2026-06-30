@@ -4,7 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -25,6 +27,7 @@ public class AddEditActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private long recordId = -1;
     private Calendar calendar;
+    private SpeechRecognizer speechRecognizer;
 
     private static final int REQUEST_SPEECH = 100;
 
@@ -72,40 +75,122 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void startVoiceRecognition() {
+        // Try SpeechRecognizer API directly (works even without Google app)
+        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            startDirectRecognition();
+            return;
+        }
+
+        // Fallback: try the intent-based approach
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "zh-CN");
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "请说出血压值，例如：高压120低压80心率72");
-        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
 
-        // Check if any app can handle speech recognition (more compatible than SpeechRecognizer.isRecognitionAvailable)
-        if (intent.resolveActivity(getPackageManager()) == null) {
-            Toast.makeText(this, "未找到语音识别服务，请安装 Google 语音搜索或讯飞输入法", Toast.LENGTH_LONG).show();
-            return;
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            try {
+                startActivityForResult(intent, REQUEST_SPEECH);
+                return;
+            } catch (Exception e) {
+                // ignore, fall through
+            }
         }
 
-        try {
-            startActivityForResult(intent, REQUEST_SPEECH);
-        } catch (Exception e) {
-            Toast.makeText(this, "语音识别启动失败，请确保已安装语音服务", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "此设备无语音识别服务\n\n请安装以下任一应用：\n• Google（谷歌搜索）\n• 讯飞语记\n• 百度输入法（含语音版）", Toast.LENGTH_LONG).show();
+    }
+
+    private void startDirectRecognition() {
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
         }
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle params) {
+                btnVoice.setText("正在聆听...");
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {}
+
+            @Override
+            public void onRmsChanged(float rmsdB) {}
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {}
+
+            @Override
+            public void onEndOfSpeech() {
+                btnVoice.setText("语音输入血压");
+            }
+
+            @Override
+            public void onError(int error) {
+                btnVoice.setText("语音输入血压");
+                String msg;
+                switch (error) {
+                    case SpeechRecognizer.ERROR_NETWORK:
+                        msg = "网络连接失败，请检查网络";
+                        break;
+                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                        msg = "网络超时，请重试";
+                        break;
+                    case SpeechRecognizer.ERROR_NO_MATCH:
+                        msg = "未识别到语音内容，请重试";
+                        break;
+                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                        msg = "未检测到语音输入";
+                        break;
+                    case SpeechRecognizer.ERROR_AUDIO:
+                        msg = "音频录制错误";
+                        break;
+                    case SpeechRecognizer.ERROR_CLIENT:
+                        msg = "语音服务异常，请重试";
+                        break;
+                    case SpeechRecognizer.ERROR_SERVER:
+                        msg = "语音识别服务器错误";
+                        break;
+                    default:
+                        msg = "识别失败（错误码: " + error + "）";
+                        break;
+                }
+                Toast.makeText(AddEditActivity.this, msg, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResults(Bundle results) {
+                btnVoice.setText("语音输入血压");
+                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty()) {
+                    parseVoiceResult(matches.get(0));
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {}
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {}
+        });
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "zh-CN");
+        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        speechRecognizer.startListening(intent);
     }
 
     private void parseVoiceResult(String text) {
         if (text == null || text.isEmpty()) return;
 
-        // Normalize the text
         String normalized = text.replaceAll("\\s+", "").toLowerCase();
-
-        // Pattern 1: "高压xxx低压xxx心率xxx" or "收缩压xxx舒张压xxx心率xxx"
-        // Pattern 2: "xxx/xxx xxx" or "xxx xxx xxx" (three numbers)
-        // Pattern 3: "xxx/xxx/xxx"
 
         int systolic = 0, diastolic = 0, heartRate = 0;
 
-        // Try pattern: keyword + number
         systolic = extractNumber(normalized, "(高压|收缩压|高压值|sbp)\\s*[:：]?\\s*(\\d{2,3})");
         if (systolic == 0) systolic = extractNumber(normalized, "(高压|收缩压)\\D*(\\d{2,3})");
 
@@ -115,7 +200,6 @@ public class AddEditActivity extends AppCompatActivity {
         heartRate = extractNumber(normalized, "(心率|心跳|脉博|脉搏|hr)\\s*[:：]?\\s*(\\d{2,3})");
         if (heartRate == 0) heartRate = extractNumber(normalized, "(心率|心跳|脉搏)\\D*(\\d{2,3})");
 
-        // If keywords failed, try number sequence pattern: find all 2-3 digit numbers
         if (systolic == 0 || diastolic == 0) {
             ArrayList<Integer> nums = extractAllNumbers(normalized);
             if (nums.size() >= 2) {
@@ -133,7 +217,6 @@ public class AddEditActivity extends AppCompatActivity {
             }
         }
 
-        // Validate and fill
         boolean filled = false;
         if (systolic >= 60 && systolic <= 300) {
             etSystolic.setText(String.valueOf(systolic));
@@ -162,8 +245,7 @@ public class AddEditActivity extends AppCompatActivity {
         Matcher m = p.matcher(text);
         if (m.find()) {
             try {
-                int val = Integer.parseInt(m.group(2));
-                return val;
+                return Integer.parseInt(m.group(2));
             } catch (NumberFormatException e) {
                 return 0;
             }
@@ -178,7 +260,6 @@ public class AddEditActivity extends AppCompatActivity {
         while (m.find()) {
             try {
                 int val = Integer.parseInt(m.group());
-                // Filter: systolic 60-300, diastolic 30-200, HR 30-250
                 if (val >= 30 && val <= 300) {
                     nums.add(val);
                 }
@@ -195,6 +276,15 @@ public class AddEditActivity extends AppCompatActivity {
             if (results != null && !results.isEmpty()) {
                 parseVoiceResult(results.get(0));
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
+            speechRecognizer = null;
         }
     }
 

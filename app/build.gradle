@@ -7,8 +7,8 @@ android {
         applicationId "com.example.bptracker"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 10
-        versionName "7.1"
+        versionCode 11
+        versionName "7.2"
     }
 
     signingConfigs {
