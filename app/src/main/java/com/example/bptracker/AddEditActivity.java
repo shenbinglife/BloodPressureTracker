@@ -5,7 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -26,7 +25,6 @@ public class AddEditActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private long recordId = -1;
     private Calendar calendar;
-    private SpeechRecognizer speechRecognizer;
 
     private static final int REQUEST_SPEECH = 100;
 
@@ -74,11 +72,6 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
     private void startVoiceRecognition() {
-        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            Toast.makeText(this, "此设备不支持语音识别", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
@@ -87,10 +80,15 @@ public class AddEditActivity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
 
+        // Check if any app can handle speech recognition (more compatible than SpeechRecognizer.isRecognitionAvailable)
+        if (intent.resolveActivity(getPackageManager()) == null) {
+            Toast.makeText(this, "未找到语音识别服务，请安装 Google 语音搜索或讯飞输入法", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         try {
             startActivityForResult(intent, REQUEST_SPEECH);
         } catch (Exception e) {
-            // Fallback to direct recognizer
             Toast.makeText(this, "语音识别启动失败，请确保已安装语音服务", Toast.LENGTH_LONG).show();
         }
     }
