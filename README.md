@@ -90,6 +90,8 @@ gradle assembleRelease
 | v4.0 | `BloodPressureTracker-v4.apk` / `-v4-release.apk` | 2.2 MB / 1.9 MB | 修复定时通知不生效（setExactAndAllowWhileIdle + 通知渠道 + 开机自启） |
 | v5.0 | `BloodPressureTracker-v5.apk` / `-v5-release.apk` | 2.2 MB / 1.9 MB | 点击通知自动打开应用 |
 | v6.0 | `BloodPressureTracker-v6.apk` / `-v6-release.apk` | 2.2 MB / 1.9 MB | 升级为中国2024指南标准（正常/正常高值/1-3级），新增血压标准参考页面 |
+| v6.2 | `BloodPressureTracker-v6.2.apk` / `-v6.2-release.apk` | 2.2 MB / 1.9 MB | 看板时间按钮改为横向滚动+自适应宽度，默认选中最近一周 |
+| v7.0 | `BloodPressureTracker-v7.0.apk` / `-v7.0-release.apk` | 2.2 MB / 1.9 MB | 新增语音输入血压功能，使用系统内置SpeechRecognizer，完全免费 |
 
 ## 安装
 
