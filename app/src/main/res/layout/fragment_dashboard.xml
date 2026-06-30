@@ -282,7 +282,7 @@
             <!-- Distribution Chart -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="260dp"
+                android:layout_height="280dp"
                 android:layout_margin="4dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">

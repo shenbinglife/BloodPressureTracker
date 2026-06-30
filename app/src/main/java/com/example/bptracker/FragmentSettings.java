@@ -25,7 +25,7 @@ public class FragmentSettings extends Fragment {
     private static final int REQUEST_IMPORT = 101;
 
     private SwitchCompat switchNotification;
-    private Button btnNotificationTime, btnExport, btnImport;
+    private Button btnNotificationTime, btnExport, btnImport, btnBPStandard;
     private DatabaseHelper dbHelper;
 
     @Nullable
@@ -38,6 +38,7 @@ public class FragmentSettings extends Fragment {
         btnNotificationTime = view.findViewById(R.id.btnNotificationTime);
         btnExport = view.findViewById(R.id.btnExport);
         btnImport = view.findViewById(R.id.btnImport);
+        btnBPStandard = view.findViewById(R.id.btnBPStandard);
 
         boolean enabled = NotificationHelper.isEnabled(getContext());
         switchNotification.setChecked(enabled);
@@ -72,6 +73,10 @@ public class FragmentSettings extends Fragment {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("text/*");
             startActivityForResult(intent, REQUEST_IMPORT);
+        });
+
+        btnBPStandard.setOnClickListener(v -> {
+            startActivity(new Intent(getContext(), BPStandardActivity.class));
         });
 
         return view;

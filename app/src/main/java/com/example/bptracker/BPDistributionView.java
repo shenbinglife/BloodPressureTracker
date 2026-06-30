@@ -11,7 +11,7 @@ public class BPDistributionView extends View {
     private int[] distribution;
     private int total;
     private Paint barPaint, textPaint, labelPaint;
-    private String[] labels = {"正常", "偏高", "1级", "2级", "危险"};
+    private String[] labels = {"正常", "正常高值", "1级", "2级", "3级"};
     private int[] colors = {0xFF4CAF50, 0xFFFFC107, 0xFFFF9800, 0xFFF44336, 0xFFB71C1C};
 
     public BPDistributionView(Context context, AttributeSet attrs) {

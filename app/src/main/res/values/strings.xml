@@ -34,11 +34,11 @@
     <string name="heart_rate_range">心率需在 30~250 之间</string>
 
     <!-- BP Level -->
-    <string name="bp_normal">正常</string>
-    <string name="bp_elevated">偏高</string>
-    <string name="bp_high_stage1">高血压 1级</string>
-    <string name="bp_high_stage2">高血压 2级</string>
-    <string name="bp_crisis">危险</string>
+    <string name="bp_normal">正常血压</string>
+    <string name="bp_elevated">正常高值</string>
+    <string name="bp_high_stage1">1级高血压</string>
+    <string name="bp_high_stage2">2级高血压</string>
+    <string name="bp_crisis">3级高血压</string>
 
     <!-- Dashboard -->
     <string name="dashboard_title">血压看板</string>
