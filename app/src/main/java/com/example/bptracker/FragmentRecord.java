@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,13 +31,13 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
     private static final int REQUEST_ADD = 1;
     private static final int REQUEST_EDIT = 2;
     private static final int REQUEST_RECORD_AUDIO = 3;
+    private static final int REQUEST_VOICE_INPUT = 4;
 
     private DatabaseHelper dbHelper;
     private RecordAdapter adapter;
     private RecyclerView recyclerView;
     private TextView tvEmpty;
     private FloatingActionButton fabAdd, fabVoice;
-    private SpeechRecognizer speechRecognizer;
 
     @Nullable
     @Override
@@ -80,11 +77,6 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
             return;
         }
 
-        if (SpeechRecognizer.isRecognitionAvailable(getContext())) {
-            startDirectRecognition();
-            return;
-        }
-
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
@@ -94,59 +86,13 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
 
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             try {
-                startActivityForResult(intent, REQUEST_ADD);
-                return;
-            } catch (Exception ignored) {}
+                startActivityForResult(intent, REQUEST_VOICE_INPUT);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "无法启动语音识别: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "此设备无语音识别服务\n\n请安装 Google（谷歌搜索）或讯飞语记", Toast.LENGTH_LONG).show();
         }
-
-        Toast.makeText(getContext(), "此设备无语音识别服务\n\n请安装 Google（谷歌搜索）或讯飞语记", Toast.LENGTH_LONG).show();
-    }
-
-    private void startDirectRecognition() {
-        if (speechRecognizer != null) speechRecognizer.destroy();
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-        speechRecognizer.setRecognitionListener(new RecognitionListener() {
-            @Override public void onReadyForSpeech(Bundle params) {
-                fabVoice.setImageResource(android.R.drawable.ic_btn_speak_now);
-                Toast.makeText(getContext(), R.string.voice_listening, Toast.LENGTH_SHORT).show();
-            }
-            @Override public void onBeginningOfSpeech() {}
-            @Override public void onRmsChanged(float rmsdB) {}
-            @Override public void onBufferReceived(byte[] buffer) {}
-            @Override public void onEndOfSpeech() {}
-            @Override
-            public void onError(int error) {
-                String msg;
-                switch (error) {
-                    case SpeechRecognizer.ERROR_NETWORK:                msg = "网络连接失败"; break;
-                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:         msg = "网络超时"; break;
-                    case SpeechRecognizer.ERROR_NO_MATCH:                msg = "未识别到语音"; break;
-                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:          msg = "未检测到语音"; break;
-                    case SpeechRecognizer.ERROR_AUDIO:                   msg = "录音错误"; break;
-                    case SpeechRecognizer.ERROR_CLIENT:                  msg = "语音服务异常"; break;
-                    case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS: msg = "未授予录音权限，请在设置中开启"; break;
-                    default: msg = "识别失败（错误: " + error + "）"; break;
-                }
-                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-            }
-            @Override
-            public void onResults(Bundle results) {
-                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                if (matches != null && !matches.isEmpty()) {
-                    parseAndCreateRecord(matches.get(0));
-                }
-            }
-            @Override public void onPartialResults(Bundle partialResults) {}
-            @Override public void onEvent(int eventType, Bundle params) {}
-        });
-
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "zh-CN");
-        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-        speechRecognizer.startListening(intent);
     }
 
     private void parseAndCreateRecord(String text) {
@@ -258,6 +204,19 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_VOICE_INPUT) {
+            if (resultCode == getActivity().RESULT_OK && data != null) {
+                ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (results != null && !results.isEmpty()) {
+                    parseAndCreateRecord(results.get(0));
+                } else {
+                    Toast.makeText(getContext(), "未识别到语音内容", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "语音识别取消或失败", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         if ((requestCode == REQUEST_ADD || requestCode == REQUEST_EDIT) && resultCode == getActivity().RESULT_OK) {
             loadRecords();
         }
@@ -271,15 +230,6 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
             } else {
                 Toast.makeText(getContext(), "需要录音权限才能使用语音输入", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (speechRecognizer != null) {
-            speechRecognizer.destroy();
-            speechRecognizer = null;
         }
     }
 }
