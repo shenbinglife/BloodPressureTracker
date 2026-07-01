@@ -1,6 +1,8 @@
 package com.example.bptracker;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -14,13 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +33,7 @@ import java.util.regex.Pattern;
 public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordActionListener {
     private static final int REQUEST_ADD = 1;
     private static final int REQUEST_EDIT = 2;
+    private static final int REQUEST_RECORD_AUDIO = 3;
 
     private DatabaseHelper dbHelper;
     private RecordAdapter adapter;
@@ -69,6 +73,13 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
     // ── Voice Recognition ──────────────────────────────────────────
 
     private void startVoiceRecognition() {
+        // Android 6.0+ requires runtime permission for RECORD_AUDIO
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+            return;
+        }
+
         if (SpeechRecognizer.isRecognitionAvailable(getContext())) {
             startDirectRecognition();
             return;
@@ -107,12 +118,13 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
             public void onError(int error) {
                 String msg;
                 switch (error) {
-                    case SpeechRecognizer.ERROR_NETWORK:        msg = "网络连接失败"; break;
-                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT: msg = "网络超时"; break;
-                    case SpeechRecognizer.ERROR_NO_MATCH:        msg = "未识别到语音"; break;
-                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:  msg = "未检测到语音"; break;
-                    case SpeechRecognizer.ERROR_AUDIO:           msg = "录音错误"; break;
-                    case SpeechRecognizer.ERROR_CLIENT:          msg = "语音服务异常"; break;
+                    case SpeechRecognizer.ERROR_NETWORK:                msg = "网络连接失败"; break;
+                    case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:         msg = "网络超时"; break;
+                    case SpeechRecognizer.ERROR_NO_MATCH:                msg = "未识别到语音"; break;
+                    case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:          msg = "未检测到语音"; break;
+                    case SpeechRecognizer.ERROR_AUDIO:                   msg = "录音错误"; break;
+                    case SpeechRecognizer.ERROR_CLIENT:                  msg = "语音服务异常"; break;
+                    case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS: msg = "未授予录音权限，请在设置中开启"; break;
                     default: msg = "识别失败（错误: " + error + "）"; break;
                 }
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
@@ -248,6 +260,17 @@ public class FragmentRecord extends Fragment implements RecordAdapter.OnRecordAc
         super.onActivityResult(requestCode, resultCode, data);
         if ((requestCode == REQUEST_ADD || requestCode == REQUEST_EDIT) && resultCode == getActivity().RESULT_OK) {
             loadRecords();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_RECORD_AUDIO) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startVoiceRecognition();
+            } else {
+                Toast.makeText(getContext(), "需要录音权限才能使用语音输入", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
